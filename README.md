@@ -67,6 +67,13 @@ export class RaceSpecification extends CompositeSpecification<Character> {
   }
 }
 
+export class IsCharacterGoodAtStealthSpecification extends CompositeSpecification<Character> {
+  IsSatisfiedBy(candidate: Character): boolean {
+    const stealthGears = [Gear.MuffledBoots];
+    return stealthGears.some((gear) => candidate.gears.includes(gear));
+  }
+}
+
 export class CharacterFilter {
   executeSpecification(
     characters: Character[],
