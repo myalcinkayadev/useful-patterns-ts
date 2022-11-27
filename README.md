@@ -1,70 +1,97 @@
 # daily-snippets
 
 ## Specification pattern
+
 A real-life example for open for extension closed for modification
+
 ```javascript
-class ColorSpecification {
-  constructor(color) {
-    this.color = color;
+export enum Race {
+  HighElf,
+  Redguard,
+  Breton,
+  Khajiit,
+  Orc,
+}
+
+export enum Gear {
+  Dagger,
+  Bows,
+  MuffledBoots,
+  HeavyArmor,
+  Shield,
+  FortifyAlchemy,
+  FortifySmithing,
+}
+
+export enum Skill {
+  OneHanded,
+  Archery,
+  Sneak,
+  Illusion,
+  Conjuration,
+  Alchemy,
+  Enchanting,
+  Smithing,
+}
+
+export enum Spell {
+  Frenzy,
+  Invisibility,
+}
+
+export enum Shout {
+  AuraWhisper = 'Aura Whisper',
+  BendWill = 'Bend Will',
+  ElementalFury = 'Elemental Fury',
+  SlowTime = 'Slow Time',
+}
+
+export class Character {
+  constructor(
+    public readonly name: string,
+    public readonly race: Race,
+    public readonly coreSkills: Skill[],
+    public readonly gears: Gear[],
+    public readonly spells?: Spell[],
+    public readonly shouts?: Shout[],
+  ) {}
+}
+
+export class RaceSpecification extends CompositeSpecification<Character> {
+  constructor(private readonly race: Race) {
+    super();
   }
 
-  isSatisfied(item) {
-    return item.color === this.color;
+  IsSatisfiedBy(candidate: Character): boolean {
+    return candidate.race === this.race;
   }
 }
 
-class SizeSpecification {
-  constructor(size) {
-    this.size = size;
-  }
-
-  isSatisfied(item) {
-    return item.size === this.size;
-  }
-}
-
-class ProductFilter {
-  filter(items, spec) {
-    return items.filter(x => spec.isSatisfied(x));
+export class CharacterFilter {
+  executeSpecification(
+    characters: Character[],
+    spec: ISpecification<Character>,
+  ) {
+    return characters.filter((character) => spec.IsSatisfiedBy(character));
   }
 }
 
-const f = new ProductFilter();
+// Client code(usage):
+const khajiitSpec = new RaceSpecification(Race.Khajiit);
+const stealthSpec = new IsCharacterGoodAtStealthSpecification();
+const combinatorSpec = khajiitSpec.and(stealthSpec);
 
-const products = [{
-  id: 1,
-  color: 'blue',
-  size: 'large'
-},
-{
-  id: 2,
-  color: 'red',
-  size: 'small'
-}]
+export const stealthArcherKhajiit = new Character(
+  'Stealth Archer Khajiit',
+  Race.Khajiit,
+  [Skill.Archery, Skill.Sneak, Skill.Illusion],
+  [Gear.Bows, Gear.MuffledBoots],
+);
 
-class AndSpecification {
-  constructor(...spec) {
-    this.specs = spec;
-  }
-  isSatisfied(item) {
-    return this.specs.every(x => x.isSatisfied(item))
-  }
-}
+const characters = [stealthArcherKhajiit];
 
-class OrSpecification {
-  constructor(...spec) {
-    this.specs = spec;
-  }
-  isSatisfied(item) {
-    return this.specs.some(x => x.isSatisfied(item))
-  }
-}
+const cf = new CharacterFilter();
+const result = cf.executeSpecification(characters, combinatorSpec);
 
-const andSpec = new AndSpecification(new ColorSpecification('blue'), new SizeSpecification('large'))
-
-const orSpec = new OrSpecification(new ColorSpecification('blue'), new SizeSpecification('small'))
-
-const searchResult = f.filter(products, andSpec)
-
-console.log(searchResult);
+expect(result).toStrictEqual([stealthArcherKhajiit]);
 ```
