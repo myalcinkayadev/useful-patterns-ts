@@ -4,7 +4,7 @@
 
 A real-life example for open for extension closed for modification
 
-```javascript
+```typescript
 export enum Race {
   HighElf,
   Redguard,
