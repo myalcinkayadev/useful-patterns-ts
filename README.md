@@ -1,6 +1,10 @@
 # daily-snippets
 
-## Specification pattern
+## Table of Contents
+1. [Specification pattern](#specification-pattern)
+2. [Circuit breaker](#circuit-breaker)
+
+### Specification pattern
 
 A real-life example for open for extension closed for modification
 
@@ -103,7 +107,7 @@ const result = cf.executeSpecification(characters, combinatorSpec);
 expect(result).toStrictEqual([stealthArcherKhajiit]);
 ```
 
-## Circuit Breaker
+### Circuit Breaker
 ```typescript
 class CircuitBreaker {
   private isOpen: boolean;
